@@ -18,7 +18,6 @@ local flyEnabled = false
 local noclipEnabled = false
 local invisEnabled = false
 local espEnabled = false
-local btoolEnabled = false
 local fullbrightEnabled = false
 local infJumpEnabled = false
 local fovEnabled = false
@@ -28,6 +27,8 @@ local bodyVelocity = nil
 local bodyGyro = nil
 local flyConnection = nil
 local noclipConnection = nil
+local savedPosition = nil
+
 local espFolder = Instance.new("Folder")
 espFolder.Name = "ESPFolder"
 espFolder.Parent = Workspace
@@ -38,16 +39,16 @@ screenGui.Name = "AdvancedModMenuGui"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = playerGui
 
--- Tombol Floating Buka/Tutup Menu (Aesthetic Style)
+-- Tombol Floating Buka/Tutup Menu (Aesthetic Minimalist)
 local openButton = Instance.new("TextButton")
 openButton.Name = "OpenButton"
 openButton.Size = UDim2.new(0, 48, 0, 48)
 openButton.Position = UDim2.new(0, 15, 0.4, 0)
-openButton.BackgroundColor3 = Color3.fromRGB(24, 24, 28)
-openButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-openButton.TextSize: 13
+openButton.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+openButton.TextColor3 = Color3.fromRGB(230, 230, 242)
+openButton.TextSize = 13
 openButton.Font = Enum.Font.GothamBold
-openButton.Text = "MOD"
+openButton.Text = "JVPNL"
 openButton.Draggable = true
 openButton.Parent = screenGui
 
@@ -56,78 +57,89 @@ openCorner.CornerRadius = UDim.new(0, 12)
 openCorner.Parent = openButton
 
 local openStroke = Instance.new("UIStroke")
-openStroke.Color = Color3.fromRGB(60, 60, 75)
+openStroke.Color = Color3.fromRGB(75, 75, 100)
 openStroke.Thickness = 1.5
 openStroke.Parent = openButton
 
--- Frame Utama Panel Menu
+-- Frame Utama Panel Menu (Grid Layout 2 Kolom, rapi & tidak terlalu panjang)
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 240, 0, 380)
-mainFrame.Position = UDim2.new(0.5, -120, 0.5, -190)
-mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
+mainFrame.Size = UDim2.new(0, 340, 0, 340)
+mainFrame.Position = UDim2.new(0.5, -170, 0.5, -170)
+mainFrame.BackgroundColor3 = Color3.fromRGB(16, 16, 21)
 mainFrame.Visible = false
 mainFrame.Draggable = true
 mainFrame.Active = true
 mainFrame.Parent = screenGui
 
 local mainCorner = Instance.new("UICorner")
-mainCorner.CornerRadius = UDim.new(0, 14)
+mainCorner.CornerRadius = UDim.new(0, 16)
 mainCorner.Parent = mainFrame
 
 local mainStroke = Instance.new("UIStroke")
-mainStroke.Color = Color3.fromRGB(45, 45, 55)
+mainStroke.Color = Color3.fromRGB(50, 50, 70)
 mainStroke.Thickness = 1.5
 mainStroke.Parent = mainFrame
 
 -- Header / Judul Panel
 local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 42)
+titleBar.Size = UDim2.new(1, 0, 0, 45)
 titleBar.BackgroundTransparency = 1
 titleBar.Parent = mainFrame
 
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(1, 0, 1, 0)
+titleLabel.Position = UDim2.new(0, 15, 0, 0)
 titleLabel.BackgroundTransparency = 1
-titleLabel.TextColor3 = Color3.fromRGB(240, 240, 245)
-titleLabel.TextSize = 14
+titleLabel.TextColor3 = Color3.fromRGB(240, 240, 250)
+titleLabel.TextSize = 15
 titleLabel.Font = Enum.Font.GothamBold
-titleLabel.Text = "✨ ULTIMATE MOD MENU"
+titleLabel.Text = "JAVAXPANEL"
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 titleLabel.Parent = titleBar
 
--- ScrollingFrame untuk menampung tombol fitur agar rapi & bisa digulir
+-- Garis Pembatas Header
+local divider = Instance.new("Frame")
+divider.Size = UDim2.new(1, -30, 0, 1)
+divider.Position = UDim2.new(0, 15, 0, 45)
+divider.BackgroundColor3 = Color3.fromRGB(35, 35, 48)
+divider.BorderSizePixel = 0
+divider.Parent = mainFrame
+
+-- ScrollingFrame dengan sistem Grid 2 Kolom
 local scrollingFrame = Instance.new("ScrollingFrame")
-scrollingFrame.Size = UDim2.new(1, 0, 1, -45)
-scrollingFrame.Position = UDim2.new(0, 0, 0, 42)
+scrollingFrame.Size = UDim2.new(1, -10, 1, -55)
+scrollingFrame.Position = UDim2.new(0, 5, 0, 50)
 scrollingFrame.BackgroundTransparency = 1
 scrollingFrame.BorderSizePixel = 0
 scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 scrollingFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
 scrollingFrame.ScrollBarThickness = 3
-scrollingFrame.ScrollBarImageColor3 = Color3.fromRGB(80, 80, 100)
+scrollingFrame.ScrollBarImageColor3 = Color3.fromRGB(80, 80, 110)
 scrollingFrame.Parent = mainFrame
 
--- UIListLayout untuk otomatis menyusun tombol secara vertikal tanpa bentrok
-local uiListLayout = Instance.new("UIListLayout")
-uiListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-uiListLayout.Padding = UDim.new(0, 8)
-uiListLayout.Parent = scrollingFrame
+local gridLayout = Instance.new("UIGridLayout")
+gridLayout.CellSize = UDim2.new(0, 156, 0, 36)
+gridLayout.CellPadding = UDim2.new(0, 10, 0, 10)
+gridLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+gridLayout.SortOrder = Enum.SortOrder.LayoutOrder
+gridLayout.Parent = scrollingFrame
 
 local uiPadding = Instance.new("UIPadding")
-uiPadding.PaddingTop = UDim.new(0, 6)
+uiPadding.PaddingTop = UDim.new(0, 8)
 uiPadding.PaddingBottom = UDim.new(0, 12)
+uiPadding.PaddingLeft = UDim.new(0, 4)
+uiPadding.PaddingRight = UDim.new(0, 4)
 uiPadding.Parent = scrollingFrame
 
--- Fungsi Pembuat Tombol Fitur yang Konsisten & Aesthetic
-local function createFeatureButton(name, callback)
+-- Fungsi Pembuat Tombol Grid yang Aesthetic
+local function createFeatureButton(name, callback, isAction)
 	local btn = Instance.new("TextButton")
-	btn.Size = UDim2.new(0, 210, 0, 36)
-	btn.BackgroundColor3 = Color3.fromRGB(32, 32, 38)
-	btn.TextColor3 = Color3.fromRGB(200, 200, 210)
+	btn.BackgroundColor3 = Color3.fromRGB(26, 26, 34)
+	btn.TextColor3 = Color3.fromRGB(190, 190, 205)
 	btn.TextSize = 12
 	btn.Font = Enum.Font.GothamMedium
-	btn.Text = name .. " : OFF"
+	btn.Text = isAction and name or (name .. " : OFF")
 	btn.Parent = scrollingFrame
 
 	local corner = Instance.new("UICorner")
@@ -135,41 +147,55 @@ local function createFeatureButton(name, callback)
 	corner.Parent = btn
 
 	local stroke = Instance.new("UIStroke")
-	stroke.Color = Color3.fromRGB(50, 50, 60)
+	stroke.Color = Color3.fromRGB(45, 45, 60)
 	stroke.Thickness = 1
 	stroke.Parent = btn
 
-	local active = false
-	btn.MouseButton1Click:Connect(function()
-		active = not active
-		if active then
-			btn.BackgroundColor3 = Color3.fromRGB(39, 134, 90) -- Hijau Emerald Modern
-			btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-			stroke.Color = Color3.fromRGB(46, 204, 113)
-			btn.Text = name .. " : ON"
-		else
-			btn.BackgroundColor3 = Color3.fromRGB(32, 32, 38)
-			btn.TextColor3 = Color3.fromRGB(200, 200, 210)
-			stroke.Color = Color3.fromRGB(50, 50, 60)
-			btn.Text = name .. " : OFF"
-		end
-		callback(active)
-	end)
+	if isAction then
+		btn.MouseButton1Click:Connect(function()
+			btn.BackgroundColor3 = Color3.fromRGB(60, 60, 90)
+			stroke.Color = Color3.fromRGB(120, 120, 180)
+			task.wait(0.15)
+			btn.BackgroundColor3 = Color3.fromRGB(26, 26, 34)
+			stroke.Color = Color3.fromRGB(45, 45, 60)
+			callback()
+		end)
+	else
+		local active = false
+		btn.MouseButton1Click:Connect(function()
+			active = not active
+			if active then
+				btn.BackgroundColor3 = Color3.fromRGB(24, 75, 52) -- Hijau lumut lembut (tidak menyilaukan)
+				btn.TextColor3 = Color3.fromRGB(235, 255, 245)
+				stroke.Color = Color3.fromRGB(46, 204, 113)
+				btn.Text = name .. " : ON"
+			else
+				btn.BackgroundColor3 = Color3.fromRGB(26, 26, 34)
+				btn.TextColor3 = Color3.fromRGB(190, 190, 205)
+				stroke.Color = Color3.fromRGB(45, 45, 60)
+				btn.Text = name .. " : OFF"
+			end
+			callback(active)
+		end)
+	end
 end
 
 openButton.MouseButton1Click:Connect(function()
 	mainFrame.Visible = not mainFrame.Visible
 end)
 
--- Daftarkan Fitur-Fitur Menu
+-- ================= DAFTAR FITUR =================
+
+-- 1. Speed (100)
 createFeatureButton("Speed (100)", function(state)
 	speedEnabled = state
 	local char = player.Character
 	if char and char:FindFirstChildOfClass("Humanoid") then
 		char.Humanoid.WalkSpeed = speedEnabled and 100 or 16
 	end
-end)
+end, false)
 
+-- 2. Super Jump (Fixed & Anti-Reset)
 createFeatureButton("Super Jump", function(state)
 	jumpEnabled = state
 	local char = player.Character
@@ -190,8 +216,27 @@ createFeatureButton("Super Jump", function(state)
 			end
 		end)
 	end
-end)
+end, false)
 
+-- 3. Save Position (Checkpoint Obby)
+createFeatureButton("Save Pos", function()
+	local char = player.Character
+	if char and char:FindFirstChild("HumanoidRootPart") then
+		savedPosition = char.HumanoidRootPart.CFrame
+	end
+end, true)
+
+-- 4. Teleport Back (Kembali ke Checkpoint)
+createFeatureButton("Teleport Back", function()
+	if savedPosition then
+		local char = player.Character
+		if char and char:FindFirstChild("HumanoidRootPart") then
+			char.HumanoidRootPart.CFrame = savedPosition
+		end
+	end
+end, true)
+
+-- 5. Fly Mode
 createFeatureButton("Fly Mode", function(state)
 	flyEnabled = state
 	local char = player.Character
@@ -233,8 +278,9 @@ createFeatureButton("Fly Mode", function(state)
 		if bodyGyro then bodyGyro:Destroy() end
 		if flyConnection then flyConnection:Disconnect() end
 	end
-end)
+end, false)
 
+-- 6. Noclip
 createFeatureButton("Noclip", function(state)
 	noclipEnabled = state
 	if noclipConnection then noclipConnection:Disconnect() end
@@ -250,8 +296,9 @@ createFeatureButton("Noclip", function(state)
 			end
 		end)
 	end
-end)
+end, false)
 
+-- 7. Invisibility
 createFeatureButton("Invisibility", function(state)
 	invisEnabled = state
 	local char = player.Character
@@ -271,8 +318,9 @@ createFeatureButton("Invisibility", function(state)
 			item.Enabled = not invisEnabled
 		end
 	end
-end)
+end, false)
 
+-- 8. Player ESP
 createFeatureButton("Player ESP", function(state)
 	espEnabled = state
 	espFolder:ClearAllChildren()
@@ -290,14 +338,15 @@ createFeatureButton("Player ESP", function(state)
 					box.AlwaysOnTop = true
 					box.ZIndex = 5
 					box.Transparency = 0.5
-					box.Color3 = Color3.fromRGB(255, 75, 75)
+					box.Color3 = Color3.fromRGB(255, 90, 90)
 					box.Parent = espFolder
 				end
 			end
 		end)
 	end
-end)
+end, false)
 
+-- 9. Fullbright
 createFeatureButton("Fullbright", function(state)
 	fullbrightEnabled = state
 	if fullbrightEnabled then
@@ -309,11 +358,12 @@ createFeatureButton("Fullbright", function(state)
 		Lighting.Brightness = 1
 		Lighting.GlobalShadows = true
 	end
-end)
+end, false)
 
+-- 10. Infinite Jump
 createFeatureButton("Infinite Jump", function(state)
 	infJumpEnabled = state
-end)
+end, false)
 
 UserInputService.JumpRequest:Connect(function()
 	if infJumpEnabled then
@@ -324,10 +374,11 @@ UserInputService.JumpRequest:Connect(function()
 	end
 end)
 
+-- 11. Wide FOV
 createFeatureButton("Wide FOV", function(state)
 	fovEnabled = state
 	camera.FieldOfView = fovEnabled and 110 or 70
-end)
+end, false)
 
 -- Reset Status saat Respawn
 player.CharacterAdded:Connect(function(char)
@@ -338,9 +389,9 @@ player.CharacterAdded:Connect(function(char)
 	noclipEnabled = false
 	invisEnabled = false
 	espEnabled = false
-	btoolEnabled = false
 	fullbrightEnabled = false
 	infJumpEnabled = false
 	fovEnabled = false
+	savedPosition = nil
 	espFolder:ClearAllChildren()
 end)
