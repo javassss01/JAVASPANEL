@@ -165,7 +165,7 @@ local function createFeatureButton(name, callback, isAction)
 		btn.MouseButton1Click:Connect(function()
 			active = not active
 			if active then
-				btn.BackgroundColor3 = Color3.fromRGB(24, 75, 52) -- Hijau lumut lembut (tidak menyilaukan)
+				btn.BackgroundColor3 = Color3.fromRGB(24, 75, 52)
 				btn.TextColor3 = Color3.fromRGB(235, 255, 245)
 				stroke.Color = Color3.fromRGB(46, 204, 113)
 				btn.Text = name .. " : ON"
@@ -186,7 +186,6 @@ end)
 
 -- ================= DAFTAR FITUR =================
 
--- 1. Speed (100)
 createFeatureButton("Speed (100)", function(state)
 	speedEnabled = state
 	local char = player.Character
@@ -195,7 +194,6 @@ createFeatureButton("Speed (100)", function(state)
 	end
 end, false)
 
--- 2. Super Jump (Fixed & Anti-Reset)
 createFeatureButton("Super Jump", function(state)
 	jumpEnabled = state
 	local char = player.Character
@@ -218,7 +216,6 @@ createFeatureButton("Super Jump", function(state)
 	end
 end, false)
 
--- 3. Save Position (Checkpoint Obby)
 createFeatureButton("Save Pos", function()
 	local char = player.Character
 	if char and char:FindFirstChild("HumanoidRootPart") then
@@ -226,7 +223,6 @@ createFeatureButton("Save Pos", function()
 	end
 end, true)
 
--- 4. Teleport Back (Kembali ke Checkpoint)
 createFeatureButton("Teleport Back", function()
 	if savedPosition then
 		local char = player.Character
@@ -236,7 +232,6 @@ createFeatureButton("Teleport Back", function()
 	end
 end, true)
 
--- 5. Fly Mode
 createFeatureButton("Fly Mode", function(state)
 	flyEnabled = state
 	local char = player.Character
@@ -280,7 +275,6 @@ createFeatureButton("Fly Mode", function(state)
 	end
 end, false)
 
--- 6. Noclip
 createFeatureButton("Noclip", function(state)
 	noclipEnabled = state
 	if noclipConnection then noclipConnection:Disconnect() end
@@ -298,7 +292,6 @@ createFeatureButton("Noclip", function(state)
 	end
 end, false)
 
--- 7. Invisibility
 createFeatureButton("Invisibility", function(state)
 	invisEnabled = state
 	local char = player.Character
@@ -320,7 +313,6 @@ createFeatureButton("Invisibility", function(state)
 	end
 end, false)
 
--- 8. Player ESP
 createFeatureButton("Player ESP", function(state)
 	espEnabled = state
 	espFolder:ClearAllChildren()
@@ -346,7 +338,6 @@ createFeatureButton("Player ESP", function(state)
 	end
 end, false)
 
--- 9. Fullbright
 createFeatureButton("Fullbright", function(state)
 	fullbrightEnabled = state
 	if fullbrightEnabled then
@@ -360,7 +351,6 @@ createFeatureButton("Fullbright", function(state)
 	end
 end, false)
 
--- 10. Infinite Jump
 createFeatureButton("Infinite Jump", function(state)
 	infJumpEnabled = state
 end, false)
@@ -374,13 +364,11 @@ UserInputService.JumpRequest:Connect(function()
 	end
 end)
 
--- 11. Wide FOV
 createFeatureButton("Wide FOV", function(state)
 	fovEnabled = state
 	camera.FieldOfView = fovEnabled and 110 or 70
 end, false)
 
--- Reset Status saat Respawn
 player.CharacterAdded:Connect(function(char)
 	char:WaitForChild("Humanoid")
 	speedEnabled = false
