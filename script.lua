@@ -6,6 +6,7 @@ local RunService = game:GetService("RunService")
 local Lighting = game:GetService("Lighting")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
+local VirtualUser = game:GetService("VirtualUser")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -22,6 +23,8 @@ local espEnabled = false
 local fullbrightEnabled = false
 local infJumpEnabled = false
 local fovEnabled = false
+local fpsBoosterEnabled = false
+local antiAfkEnabled = false
 
 local flySpeed = 50
 local bodyVelocity = nil
@@ -62,8 +65,8 @@ openStroke.Parent = openButton
 -- Frame Utama Panel Menu (Grid Layout 2 Kolom, rapi & tidak terlalu panjang)
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 340, 0, 360)
-mainFrame.Position = UDim2.new(0.5, -170, 0.5, -180)
+mainFrame.Size = UDim2.new(0, 340, 0, 380)
+mainFrame.Position = UDim2.new(0.5, -170, 0.5, -190)
 mainFrame.BackgroundColor3 = Color3.fromRGB(16, 16, 21)
 mainFrame.Visible = false
 mainFrame.Draggable = true
@@ -398,6 +401,43 @@ createFeatureButton("Wide FOV", function(state)
     camera.FieldOfView = fovEnabled and 110 or 70
 end, false)
 
+-- 13. FPS Booster (Potato Mode)
+createFeatureButton("FPS Booster", function(state)
+	fpsBoosterEnabled = state
+	if fpsBoosterEnabled then
+		for _, v in ipairs(Workspace:GetDescendants()) do
+			if v:IsA("BasePart") then
+				v.Material = Enum.Material.SmoothPlastic
+				v.Reflectance = 0
+			elseif v:IsA("Decal") or v:IsA("Texture") then
+				v.Transparency = 1
+			end
+		end
+		Lighting.GlobalShadows = false
+		Lighting.Technology = Enum.RenderTechnology.Compatibility
+	else
+		Lighting.GlobalShadows = true
+	end
+end, false)
+
+-- 14. Anti-AFK
+createFeatureButton("Anti-AFK", function(state)
+	antiAfkEnabled = state
+	local connection
+	if antiAfkEnabled then
+		connection = player.Idled:Connect(function()
+			if antiAfkEnabled then
+				VirtualUser:CaptureController()
+				VirtualUser:ClickButton2(Vector2.new())
+			end
+		end)
+	else
+		if connection then
+			connection:Disconnect()
+		end
+	end
+end, false)
+
 -- Reset Status saat Respawn
 player.CharacterAdded:Connect(function(char)
 	char:WaitForChild("Humanoid")
@@ -411,6 +451,8 @@ player.CharacterAdded:Connect(function(char)
 	fullbrightEnabled = false
 	infJumpEnabled = false
 	fovEnabled = false
+	fpsBoosterEnabled = false
+	antiAfkEnabled = false
 	savedPosition = nil
 	espFolder:ClearAllChildren()
 end)
