@@ -12,6 +12,7 @@ local playerGui = player:WaitForChild("PlayerGui")
 local camera = Workspace.CurrentCamera
 
 -- Status Fitur
+local godModeEnabled = false
 local speedEnabled = false
 local jumpEnabled = false
 local flyEnabled = false
@@ -39,16 +40,13 @@ screenGui.Name = "AdvancedModMenuGui"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = playerGui
 
--- Tombol Floating Buka/Tutup Menu (Aesthetic Minimalist)
-local openButton = Instance.new("TextButton")
+-- Tombol Floating Menggunakan Foto / Gambar (ImageButton)
+local openButton = Instance.new("ImageButton")
 openButton.Name = "OpenButton"
 openButton.Size = UDim2.new(0, 48, 0, 48)
 openButton.Position = UDim2.new(0, 15, 0.4, 0)
 openButton.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
-openButton.TextColor3 = Color3.fromRGB(230, 230, 242)
-openButton.TextSize = 13
-openButton.Font = Enum.Font.GothamBold
-openButton.Text = "JVPNL"
+openButton.Image = "rbxassetid://0" -- Ganti dengan Asset ID gambar kamu di Roblox
 openButton.Draggable = true
 openButton.Parent = screenGui
 
@@ -64,8 +62,8 @@ openStroke.Parent = openButton
 -- Frame Utama Panel Menu (Grid Layout 2 Kolom, rapi & tidak terlalu panjang)
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 340, 0, 340)
-mainFrame.Position = UDim2.new(0.5, -170, 0.5, -170)
+mainFrame.Size = UDim2.new(0, 340, 0, 360)
+mainFrame.Position = UDim2.new(0.5, -170, 0.5, -180)
 mainFrame.BackgroundColor3 = Color3.fromRGB(16, 16, 21)
 mainFrame.Visible = false
 mainFrame.Draggable = true
@@ -186,6 +184,27 @@ end)
 
 -- ================= DAFTAR FITUR =================
 
+-- 1. God Mode
+createFeatureButton("God Mode", function(state)
+	godModeEnabled = state
+	local char = player.Character
+	if not char then return end
+	local humanoid = char:FindFirstChildOfClass("Humanoid")
+	if not humanoid then return end
+
+	if godModeEnabled then
+		task.spawn(function()
+			while godModeEnabled and player.Character == char do
+				if humanoid and humanoid.Health > 0 then
+					humanoid.Health = humanoid.MaxHealth
+				end
+				task.wait(0.1)
+			end
+		end)
+	end
+end, false)
+
+-- 2. Speed (100)
 createFeatureButton("Speed (100)", function(state)
 	speedEnabled = state
 	local char = player.Character
@@ -194,6 +213,7 @@ createFeatureButton("Speed (100)", function(state)
 	end
 end, false)
 
+-- 3. Super Jump
 createFeatureButton("Super Jump", function(state)
 	jumpEnabled = state
 	local char = player.Character
@@ -216,6 +236,7 @@ createFeatureButton("Super Jump", function(state)
 	end
 end, false)
 
+-- 4. Save Pos
 createFeatureButton("Save Pos", function()
 	local char = player.Character
 	if char and char:FindFirstChild("HumanoidRootPart") then
@@ -223,6 +244,7 @@ createFeatureButton("Save Pos", function()
 	end
 end, true)
 
+-- 5. Teleport Back
 createFeatureButton("Teleport Back", function()
 	if savedPosition then
 		local char = player.Character
@@ -232,6 +254,7 @@ createFeatureButton("Teleport Back", function()
 	end
 end, true)
 
+-- 6. Fly Mode
 createFeatureButton("Fly Mode", function(state)
 	flyEnabled = state
 	local char = player.Character
@@ -275,6 +298,7 @@ createFeatureButton("Fly Mode", function(state)
 	end
 end, false)
 
+-- 7. Noclip
 createFeatureButton("Noclip", function(state)
 	noclipEnabled = state
 	if noclipConnection then noclipConnection:Disconnect() end
@@ -292,6 +316,7 @@ createFeatureButton("Noclip", function(state)
 	end
 end, false)
 
+-- 8. Invisibility
 createFeatureButton("Invisibility", function(state)
 	invisEnabled = state
 	local char = player.Character
@@ -313,6 +338,7 @@ createFeatureButton("Invisibility", function(state)
 	end
 end, false)
 
+-- 9. Player ESP
 createFeatureButton("Player ESP", function(state)
 	espEnabled = state
 	espFolder:ClearAllChildren()
@@ -338,6 +364,7 @@ createFeatureButton("Player ESP", function(state)
 	end
 end, false)
 
+-- 10. Fullbright
 createFeatureButton("Fullbright", function(state)
 	fullbrightEnabled = state
 	if fullbrightEnabled then
@@ -351,6 +378,7 @@ createFeatureButton("Fullbright", function(state)
 	end
 end, false)
 
+-- 11. Infinite Jump
 createFeatureButton("Infinite Jump", function(state)
 	infJumpEnabled = state
 end, false)
@@ -364,13 +392,16 @@ UserInputService.JumpRequest:Connect(function()
 	end
 end)
 
+-- 12. Wide FOV
 createFeatureButton("Wide FOV", function(state)
-	fovEnabled = state
-	camera.FieldOfView = fovEnabled and 110 or 70
+    fovEnabled = state
+    camera.FieldOfView = fovEnabled and 110 or 70
 end, false)
 
+-- Reset Status saat Respawn
 player.CharacterAdded:Connect(function(char)
 	char:WaitForChild("Humanoid")
+	godModeEnabled = false
 	speedEnabled = false
 	jumpEnabled = false
 	flyEnabled = false
